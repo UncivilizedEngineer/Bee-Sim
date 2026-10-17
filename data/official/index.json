@@ -1,14 +1,12 @@
 [
  {
   "scenario": "ED_1deep_baseline",
-  "file": "ED_1deep_baseline.json",
   "site": "Edmonton_CA",
   "description": "Edmonton normals, single deep, baseline wooden hive, v1.5 defaults",
   "n_steps": 2920,
   "model_version": "1.5",
   "n_nodes": 16,
   "n_paths": 44,
-  "bytes": null,
-  "viz_downsample": 3
+  "file": "ED_1deep_baseline.json"
  }
 ]
