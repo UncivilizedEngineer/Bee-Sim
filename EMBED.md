@@ -1,23 +1,70 @@
-# Embedding (Squarespace Code Block)
+# Embedding the Visualizer
 
-Add a **Code Block** in Squarespace, set it to HTML, and paste the snippet below. Replace the placeholder URL with your Pages URL.
+You can embed the hive visualizer in other websites using an iframe. This is useful for integration with content management systems like Squarespace, WordPress, or custom HTML pages.
+
+## Basic Embed Code
+
+Replace `<your-pages-url>` with your actual GitHub Pages URL:
 
 ```html
 <div style="position:relative;width:100%;aspect-ratio:16/10;min-height:420px;max-height:85vh;">
   <iframe
-    src="https://<user>.github.io/<repo>/?embed=1"
+    src="<your-pages-url>/?embed=1"
     title="Beehive thermal simulation – 3D viewer"
     style="position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:8px;"
     loading="lazy"
     allow="fullscreen"
     allowfullscreen></iframe>
 </div>
-<p style="font-size:12px"><a href="https://<user>.github.io/<repo>/" target="_blank" rel="noopener">Open full viewer ↗</a></p>
+<p style="font-size:12px">
+  <a href="<your-pages-url>/" target="_blank" rel="noopener">Open full viewer ↗</a>
+</p>
 ```
 
-Notes:
-- **Responsive height:** the wrapper keeps a 16:10 box with a 420 px minimum and caps it at 85 % of the viewport height. Adjust `aspect-ratio` to taste; on phones try `aspect-ratio:3/4`.
-- **Embed mode:** `?embed=1` hides the side panels and charts. The ☰ button opens the controls and ⛶ goes full screen; this needs `allowfullscreen`.
-- **Framing:** GitHub Pages sends no `X-Frame-Options` or `frame-ancestors` header, and the page sets none, so it can be framed.
-- **Other parameters** you can append: `&run=24h_Edmonton_CA_Jan` (the winter day) and `&k=<step>`.
-- Squarespace Code Blocks with iframes need a Business plan or higher on some Squarespace versions.
+## Embed Mode Features
+
+The `?embed=1` parameter activates embed mode:
+- Hides side panels and charts by default
+- Shows only the 3D view and time controls
+- Provides ☰ button to open control panel
+- Supports full screen mode via ⛶ button
+
+## Additional Parameters
+
+Combine URL parameters with `&`:
+
+- `&run=24h_Edmonton_CA_Jan` — select the winter day scenario
+- `&k=<step>` — start at a specific time step
+
+**Example:** `<your-pages-url>/?embed=1&run=24h_Edmonton_CA_Jan&k=72`
+
+## Responsive Sizing
+
+The wrapper div maintains a 16:10 aspect ratio with:
+- Minimum height: 420px
+- Maximum height: 85% of viewport
+- Fully responsive width
+
+Adjust `aspect-ratio` for different proportions. For mobile-first layouts, try `aspect-ratio:3/4`.
+
+## Squarespace Integration
+
+1. Add a **Code Block** to your page
+2. Set it to HTML mode
+3. Paste the embed code above
+4. Replace `<your-pages-url>` with your GitHub Pages URL
+
+Note: Some Squarespace plans require Business tier or higher for iframe support.
+
+## Security Notes
+
+- GitHub Pages does not send `X-Frame-Options` or `frame-ancestors` headers
+- The viewer does not set frame restrictions
+- The viewer is designed to be embedded safely
+
+## Browser Compatibility
+
+The viewer requires:
+- Modern browser with WebGL support
+- JavaScript enabled
+- ES6 module support

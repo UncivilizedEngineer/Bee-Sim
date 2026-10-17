@@ -38,7 +38,7 @@ body.pseudo-fs{position:fixed;inset:0;z-index:9999}
 <div id="left">
  <h3>Scenario</h3><select id="scenario"></select>
  <div class="small">schema: <span id="schema"></span></div>
- <h3>Geometry</h3><select id="geom"><option value="cad">CAD (GLB)</option><option value="parametric">Parametric placeholder</option></select>
+ <h3>Geometry</h3><select id="geom"><option value="parametric">Parametric</option></select>
  <div class="small">active: <span id="geomsrc"></span></div>
  <h3>Transparency</h3>
  <label><span>walls</span><input id="op_walls" type="range" min="0" max="1" step="0.01" value="1"></label>
@@ -68,7 +68,7 @@ body.pseudo-fs{position:fixed;inset:0;z-index:9999}
 <div id="bottom"><button id="play">▶</button>
  <select id="speed" style="width:auto"><option value="1">1 step/s</option><option value="6" selected>6 steps/s</option><option value="24">24 steps/s</option><option value="96">96 steps/s</option><option value="400">400 steps/s</option></select>
  <button id="panels" title="controls">☰</button><input id="scrub" type="range" min="0" max="1" value="0" step="any"><span id="tlabel"></span><button id="fullscreen" title="full screen">⛶</button></div>
-<script>window.HIVE_VIZ_CONFIG={geom:"cad/hive.glb"};</script>
+<script>window.HIVE_VIZ_CONFIG={geom:"parametric"};</script>
 <script type="importmap">{"imports":{"three":"./vendor/three.module.min.js"}}</script>
 <script type="module" src="app.js"></script>
 </body></html>
