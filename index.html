@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Hive thermal / humidity / colony visualizer</title>
+<meta name="description" content="Interactive 3D thermal / humidity / colony visualizer for a Langstroth beehive simulation">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+*{box-sizing:border-box} body{margin:0;font:12px/1.35 system-ui,sans-serif;background:#111418;color:#dde;display:grid;grid-template-columns:250px minmax(0,1fr) 360px;grid-template-rows:1fr 54px;height:100vh;overflow:hidden}
+#left{grid-column:1;grid-row:1/3;overflow:auto;padding:8px 10px;background:#181c21;border-right:1px solid #2a3038}
+#left h3{margin:10px 0 4px;font-size:12px;color:#9cc;text-transform:uppercase;letter-spacing:.05em}
+#left label{display:flex;align-items:center;gap:6px;margin:2px 0} #left label span{width:62px} #left input[type=range]{flex:1}
+select,button{background:#232a31;color:#dde;border:1px solid #39434e;border-radius:3px;padding:3px} select{width:100%}
+#view{grid-column:2;grid-row:1;position:relative;overflow:hidden;min-height:0} #view>canvas{position:absolute;left:0;top:0;z-index:0} #labels,#hud,#legbox,#copyright{z-index:1} #labels{position:absolute;inset:0;pointer-events:none}
+.albl{position:absolute;left:0;top:0;font-size:11px;white-space:nowrap;text-shadow:0 0 3px #000,0 0 2px #000}
+#hud{position:absolute;left:8px;top:6px;background:#000a;padding:4px 7px;border-radius:4px;pointer-events:none}
+#legbox{position:absolute;right:8px;top:8px;background:#000a;padding:4px;border-radius:4px;text-align:center}
+#right{grid-column:3;grid-row:1/3;display:flex;flex-direction:column;gap:4px;padding:4px;background:#14181c;border-left:1px solid #2a3038}
+#right{overflow:hidden;min-width:0} #right canvas{display:block;flex:1 1 0;width:100%;min-height:0;cursor:crosshair}
+#bottom{grid-column:2;grid-row:2;display:flex;align-items:center;gap:8px;padding:0 10px;background:#181c21;border-top:1px solid #2a3038}
+#scrub{flex:1} #tlabel{min-width:230px;font-variant-numeric:tabular-nums} .small{color:#889;font-size:11px}
+#fullscreen,#panels{margin-left:4px}
+#panels{display:none}
+/* embed mode: only the 3D view + time bar */
+body.embed{grid-template-columns:minmax(0,1fr);grid-template-rows:1fr 44px}
+body.embed #left,body.embed #right{display:none} body.embed #view,body.embed #bottom{grid-column:1}
+body.embed #hud{font-size:11px}
+body.embed.show-panels #left{display:block;position:fixed;left:0;top:0;bottom:44px;width:min(260px,80vw);z-index:5;opacity:.97}
+body.embed #panels{display:inline-block}
+body.pseudo-fs{position:fixed;inset:0;z-index:9999}
+/* mobile: stacked layout, scrollable page */
+@media (max-width:820px){
+ body{display:flex;flex-direction:column;height:auto;min-height:100vh;overflow:auto}
+ #view{height:62vh;min-height:300px;order:1} #bottom{order:2;height:auto;flex-wrap:wrap;padding:6px;gap:6px} #tlabel{min-width:0;font-size:11px}
+ #right{order:3;height:auto} #right canvas{flex:none;height:150px}
+ #left{order:4;border:0} #legbox canvas{height:140px} #hud{font-size:10px;max-width:70%}
+ body.embed{height:100vh;overflow:hidden} body.embed #view{flex:1;height:auto} body.embed #right,body.embed #left{display:none}
+}
+#copyright{position:absolute;left:8px;bottom:4px;font-size:10px;color:#aab;opacity:.75;pointer-events:none;text-shadow:0 0 2px #000}
+</style></head><body>
+<div id="left">
+ <h3>Scenario</h3><select id="scenario"></select>
+ <div class="small">schema: <span id="schema"></span></div>
+ <h3>Geometry</h3><select id="geom"><option value="cad">CAD (GLB)</option><option value="parametric">Parametric placeholder</option></select>
+ <div class="small">active: <span id="geomsrc"></span></div>
+ <h3>Transparency</h3>
+ <label><span>walls</span><input id="op_walls" type="range" min="0" max="1" step="0.01" value="1"></label>
+ <label><span>bottom</span><input id="op_base" type="range" min="0" max="1" step="0.01" value="1"></label>
+ <label><span>covers</span><input id="op_covers" type="range" min="0" max="1" step="0.01" value="1"></label>
+ <label><span>frames</span><input id="op_frames" type="range" min="0" max="1" step="0.01" value="1"></label>
+ <label><span>comb</span><input id="op_comb" type="range" min="0" max="1" step="0.01" value="0.85"></label>
+ <label><span>cluster</span><input id="op_cluster" type="range" min="0" max="1" step="0.01" value="0.35"></label>
+ <label><span>field</span><input id="op_field" type="range" min="0" max="1" step="0.01" value="0.6"></label>
+ <h3>Cross-section (drag colored handles)</h3>
+ <label><input id="clip_x" type="checkbox"><span>X (len)</span><input id="clipv_x" type="range" min="0" max="505" value="252"></label>
+ <label><input id="clip_y" type="checkbox"><span>Y (width)</span><input id="clipv_y" type="range" min="0" max="413" value="206"></label>
+ <label><input id="clip_z" type="checkbox"><span>Z (height)</span><input id="clipv_z" type="range" min="0" max="1000" value="200"></label>
+ <h3>Field</h3>
+ <select id="field"><option value="T">Temperature</option><option value="RH">Relative humidity overlay</option></select>
+ <select id="fieldmode" style="margin-top:4px"><option value="slices">Slices + section caps</option><option value="caps">Section caps only</option><option value="off">Off</option></select>
+ <h3>Overlays</h3>
+ <label><input id="arrows" type="checkbox" checked> energy-flow arrows (W)</label>
+ <label><input id="cond" type="checkbox" checked> condensation film/droplets</label>
+ <label><input id="residual" type="checkbox"> heat-budget residual line</label>
+ <h3>View</h3><button id="v_iso">iso</button> <button id="v_front">front</button> <button id="v_side">side</button> <button id="v_top">top</button>
+ <p class="small">Field = inverse-distance interpolation between lumped model nodes (walls, floor, covers, air, comb, honey, cluster/brood volumes). Indicative gradients only. Heat budget: exact model flows (W, + = into hive); storage = sum of all terms + residual.</p>
+</div>
+<div id="view"><div id="labels"></div><div id="copyright">© 2026 ALTAY Custom Plastics. All rights reserved.</div><div id="hud"></div>
+ <div id="legbox"><div id="legtitle" class="small"></div><canvas id="legend" width="60" height="200"></canvas></div></div>
+<div id="right"><canvas id="c_temp"></canvas><canvas id="c_rh"></canvas><canvas id="c_honey"></canvas><canvas id="c_heat"></canvas></div>
+<div id="bottom"><button id="play">▶</button>
+ <select id="speed" style="width:auto"><option value="1">1 step/s</option><option value="6" selected>6 steps/s</option><option value="24">24 steps/s</option><option value="96">96 steps/s</option><option value="400">400 steps/s</option></select>
+ <button id="panels" title="controls">☰</button><input id="scrub" type="range" min="0" max="1" value="0" step="any"><span id="tlabel"></span><button id="fullscreen" title="full screen">⛶</button></div>
+<script>window.HIVE_VIZ_CONFIG={geom:"cad/hive.glb"};</script>
+<script type="importmap">{"imports":{"three":"./vendor/three.module.min.js"}}</script>
+<script type="module" src="app.js"></script>
+</body></html>

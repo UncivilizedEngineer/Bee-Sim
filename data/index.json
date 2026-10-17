@@ -1,0 +1,15 @@
+{
+ "schema": "hive-viz-interim/1",
+ "runs": [
+  {
+   "id": "24h_Edmonton_CA_Jan",
+   "mode": "24h",
+   "site": "Edmonton_CA",
+   "variant": "baseline_wood",
+   "label": "Edmonton_CA \u00b7 Jan winter day (24 h)",
+   "doy0": 15.0,
+   "n": 144,
+   "file": "24h_Edmonton_CA_Jan.json"
+  }
+ ]
+}
